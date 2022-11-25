@@ -8,9 +8,9 @@ This bases on the repo https://github.com/salcaino/sfucmpt733/tree/main/foobar-k
 
 ### 🔸 Pre-requisite
 
-You need to obtain the API from [OpenWeatherMap API](https://openweathermap.org/api) and Binance API (please follow [Getting Started with python-binance](https://python-binance.readthedocs.io/en/latest/overview.html)) for more detail.
+You need to obtain the API from [OpenWeatherMap API](https://openweathermap.org/api)
 
-After successfully obtaining the API, please create new files `openweathermap_service.cfg` and `binance_service.cfg` based on the `...-test.cfg` files provided.
+After successfully obtaining the API, please create new files `openweathermap_service.cfg` based on the `...-test.cfg` files provided.
 
 ### 🔺 Known issue on MacOS M1 with Docker
 
@@ -29,12 +29,12 @@ chmod +x ./run.sh
 ./run.sh [build|setup|start|stop|bash|clean]
 ```
 
-- **build**: automatically build the according image to the required container for the project (can be selected with y/N options)
+- **build**: automatically build the according images to the required containers for the project (can be selected with y/N options)
 - **setup**: automatically setup Cassandra and Kafka (including Kafka Connect) sequentially and effectively link necessary services together for a functional flow
-- **start**: automatically launch the producers and consumers.
+- **start**: automatically launch the producers, consumers, and dashboard (can be selected with y/N options)
 - **stop**: automatically stop all running containers and remove networks
-- **bash**: ask for the name of the container you want to access and open an interactive bash (for Cassandra container, there's an extra option for accessing CQLSH directly)
-- **clean**: remove all pre-built images
+- **bash**: access the preferred container's shell (support direct CQLSH access for Cassandra container)
+- **clean**: remove everything ‼️
 
 ### 🧬 Recommended flow:
 
@@ -62,7 +62,7 @@ Make sure Docker 🐳 is running in your local machine before executing the belo
 docker exec -it kafka-connect bash ./start-and-wait.sh
 ```
 
-`Troubleshoot`: If the **"Kafka Connect listener HTTP state: 000"** took so much time, jump to step 6 to `stop` all containers and retry from step 1.
+`Troubleshoot`: If the **"Kafka Connect listener HTTP state: 000"** took so much time, jump to step 7 to `stop` all containers and retry from step 1.
 
 4. `Start` the producers and consumers
 
@@ -76,9 +76,11 @@ docker exec -it kafka-connect bash ./start-and-wait.sh
 ./run.sh bash
 ```
 
-`Troubleshoot`: Please always check log on `kafka-connect` at this time. If it stop for a long time, jump to step 6 to `stop` all containers and retry from step 1. (This should happen once only)
+`Troubleshoot`: Please always check log on `kafka-connect` at this time. If it stop for a long time, jump to step 7 to `stop` all containers and retry from step 1. (This should happen once only)
 
-6. After finish running, `stop` all the containers
+6. Jupyter Lab and Notebook can be accessed at http://localhost:8888 but make sure you're not running any other notebook in your machine (otherwise it will block UI access to the running notebook inside the container). For Dash app, please access http://localhost:8050
+
+7. After finish running, `stop` all the containers
 
 ```bash
 ./run.sh stop
@@ -95,3 +97,15 @@ or `clean` everything
 <div align="center">
   <img src="https://i.imgur.com/r4qZb9N.png" alt="docker-container">
 </div>
+
+### API Description
+
+- OpenWeather API will retrieve the weather data from 3 cities: `Thanh pho Ho Chi Minh, VN`, `Singapore, SG`, and `Sydney, AU`.
+- Faker Python library will generate fake data in the context of registered users on their car with 10 data fields.
+- Binance API will allow websocket streaming the KLine (Candlestick) data of 1 minute interval from 2 pairs `BTCUSDT` and `ETHUSDT`.
+
+### Visualization
+
+To get the best visualization result, the pipeline must collect enough data for at least two hours. For `Jupyter Notebook`, basic EDA on each dataset is performed (line chart, boxplot, and histogram). For cryptocurrency price, I tried to fit into [Prophet](https://facebook.github.io/prophet/) to predict the future price based on time-series model. However, the collected data is not enough to get an accurate and meaningful result.
+
+`Dash app` is also developed with `Candlestick and Volume` chart for cryptocurrency price. I tried to apply Bollinger Bands as a technical indicator for the chart but it didn't look good with the collected data. Line chart for comparison among cities was also displayed with filter variables on temperature and wind speed.

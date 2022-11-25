@@ -1,6 +1,6 @@
 
 from kafka import KafkaConsumer
-import pandas as pd
+# import pandas as pd
 import os, json
 import ast
 # from cassandrautils import saveWeatherreport
@@ -25,7 +25,8 @@ if __name__ == "__main__":
     for msg in consumer:
         # print('got one!')
         msg = msg.value.decode('ascii')
-        jsonData=json.loads(msg)
+        res = json.loads(msg)
+        print("New data consumed: ", res)
         # df = pd.DataFrame([jsonData])
         # print("Saving {} new report".format(df.shape[0]))
         # saveWeatherreport(df,CASSANDRA_HOST, CASSANDRA_KEYSPACE)

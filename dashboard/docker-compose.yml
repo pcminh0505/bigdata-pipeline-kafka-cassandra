@@ -11,6 +11,7 @@ services:
       CASSANDRA_KEYSPACE: kafkapipeline
       WEATHER_TABLE: weatherreport
       FAKER_TABLE: fakerdata
+      BINANCE_TABLE: binancedata
     ports:
       - "8050:8050"
     restart: unless-stopped

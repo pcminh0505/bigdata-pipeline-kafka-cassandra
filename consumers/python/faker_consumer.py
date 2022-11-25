@@ -1,6 +1,6 @@
 
 from kafka import KafkaConsumer
-import pandas as pd
+# import pandas as pd
 import os, json
 import ast
 
@@ -21,4 +21,5 @@ if __name__ == "__main__":
     for msg in consumer:
         # print('got one!')
         msg = msg.value.decode('ascii')
-        jsonData=json.loads(msg)
+        res = json.loads(msg)
+        print("New data consumed: ", res)

@@ -24,41 +24,77 @@ setup() {
 
 #### Start process ####
 start() {
-  echo "Starting OpenWeather Producer 🌤️";
+  # owm-producer
+  echo -n "Do you want to start OpenWeather Producer 🌤️? (y/N) > "
+  read -r OWM_OPTION
 
-  docker-compose -f owm-producer/docker-compose.yml up -d
+  if [ "$OWM_OPTION" == "y" ]
+  then
+    docker-compose -f owm-producer/docker-compose.yml up -d
+    
+    echo "=> OpenWeather Producer launched! ✅";
+  fi
 
-  echo "=> OpenWeather Producer launched! ✅";
+  # faker-producer
+  echo -n "Do you want to start Faker Producer 🎭? (y/N) > "
+  read -r FAKER_OPTION
 
-  echo "Starting Faker Producer 🎭";
+  if [ "$FAKER_OPTION" == "y" ]
+  then
+    docker-compose -f faker-producer/docker-compose.yml up -d
+    
+    echo "=> Faker Producer launched! ✅";
+  fi
 
-  docker-compose -f faker-producer/docker-compose.yml up -d
+  # binance-producer
+  echo -n "Do you want to start Binance Producer 💰(y/N) > "
+  read -r BINANCE_OPTION
 
-  echo "=> Faker Producer launched! ✅";
+  if [ "$BINANCE_OPTION" == "y" ]
+  then
+    docker-compose -f binance-producer/docker-compose.yml up -d
+    
+    echo "=> Binance Producer launched! ✅";
+  fi  
 
-  echo "Starting Binance Producer 📰";
+  # consumer
+  echo -n "Do you want to start all the Consumers 🛍️? (y/N) > "
+  read -r CONSUMER_OPTION
 
-  docker-compose -f binance-producer/docker-compose.yml up -d
+  if [ "$CONSUMER_OPTION" == "y" ]
+  then
+    cd consumers
 
-  echo "=> Binance Producer launched! ✅";
+    docker build -t consumer . 
 
-  echo "Starting all the consumers 🛍️";
+    cd ..
 
-  cd consumers
+    docker-compose -f consumers/docker-compose.yml up -d
+    
+    echo "=> All Consumers launched! ✅";
+  fi
 
-  docker build -t consumer . 
+  # data-vis
+  echo -n "Do you want to start data visualization notebook 📊? (y/N) > "
+  read -r DATA_VIS
 
-  cd ..
+  if [ "$DATA_VIS" == "y" ]
+  then
+    docker-compose -f data-vis/docker-compose.yml up -d
+    
+    echo "=> Data Visualization launched! ✅";
+  fi
 
-  docker-compose -f consumers/docker-compose.yml up -d
+  # dashboard
+  echo -n "Do you want to start Dash app? (y/N) > "
+  read -r DASH
 
-  echo "=> All Consumers launched! ✅";
-
-  echo "Starting data visualization notebook 📊";
-
-  docker-compose -f data-vis/docker-compose.yml up -d
-
-  echo "=> Data Visualization launched! ✅";
+  if [ "$DASH" == "y" ]
+  then
+    docker-compose -f dashboard/docker-compose.yml up -d
+    
+    echo "=> Dash App launched! ✅";
+  fi
 
   echo "=> Start Done. ✅";
 }
@@ -67,6 +103,8 @@ start() {
 stop() {
   echo "Stopping all Containers 🐳";
 
+  docker-compose -f dashboard/docker-compose.yml down 
+  
   docker-compose -f data-vis/docker-compose.yml down 
 
   docker-compose -f consumers/docker-compose.yml down          
@@ -147,12 +185,21 @@ build() {
   fi
 
   # data-vis
-  echo -n "Do you want to build the image for data-vis? (y/N) > "
+  echo -n "Do you want to build the image for datavis? (y/N) > "
+  read -r DATA_VIS
+
+  if [ "$DATA_VIS" == "y" ]
+  then
+    docker build -f data-vis/Dockerfile -t data-vis_datavis:latest ./data-vis
+  fi
+  
+  # dashboard
+  echo -n "Do you want to build the image for dashboard? (y/N) > "
   read -r DASH_OPTION
 
   if [ "$DASH_OPTION" == "y" ]
   then
-    docker build -f data-vis/Dockerfile -t data-vis:latest ./data-vis
+    docker build -f dashboard/Dockerfile -t dashboard_dashboard:latest ./dashboard
   fi
 
   # Cleaning up dangling images after build

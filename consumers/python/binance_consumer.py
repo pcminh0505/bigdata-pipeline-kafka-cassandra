@@ -1,7 +1,7 @@
 
 from kafka import KafkaConsumer
 import os
-import ujson
+import json
 
 if __name__ == "__main__":
     print("Starting Binance Data Consumer")
@@ -16,6 +16,6 @@ if __name__ == "__main__":
     print('Waiting for msg...')
     for msg in consumer:
         msg = msg.value.decode('utf-8')
-        res = ujson.loads(msg)
+        res = json.loads(msg)
         print("New data consumed: ", res)
     print("Bye-Bye")
