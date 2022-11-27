@@ -89,12 +89,20 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div([
-                    html.H5("Crypto Market Stream - 1m Interval"),
                     dcc.Dropdown(
-                        id='checklist-crypto', 
+                        id='pair', 
                         value='BTCUSDT', 
-                        options=[{'value': x, 'label': x} 
-                                    for x in ['BTCUSDT', 'ETHUSDT']],
+                        options=[{'label': 'BTC/UDST', 'value': 'BTCUSDT'},
+                                {'label': 'ETH/UDST', 'value': 'ETHUSDT'}],
+                        clearable=False
+                    ),
+                    dcc.Dropdown(
+                        id='interval', 
+                        value='1min', 
+                        options=[{'label': '1m', 'value': '1min'},
+                                {'label': '5m', 'value': '5min'},
+                                {'label': '30m', 'value': '30min'},
+                                {'label': '1H', 'value': '1H'}],
                         clearable=False
                     ),
                     dcc.Graph(id="graph-crypto"),
@@ -131,24 +139,32 @@ def display_color(num_bin):
 
 @app.callback(
     Output("graph-crypto", "figure"), 
-    [Input("checklist-crypto", "value")])
-def display_candlestick(pair):
+    [Input("pair", "value"),Input("interval", "value")])
+def display_candlestick(pair, interval):
     df = getBinanceDF()
+    # Get the correct pair
     df = df[(df.pair == pair)]
 
+    # Resample the interval
+    df = df.set_index('datetime')
+    df = df.resample(interval).agg({'open_price': 'first', 
+                                    'high_price': 'max', 
+                                    'low_price': 'min', 
+                                    'close_price': 'last',
+                                    'volume': 'sum'})
+    df = df.sort_index()
     # Calculate bollinger bands
-    WINDOW = 99
+    WINDOW = 20
     df['sma'] = df['close_price'].rolling(WINDOW, min_periods=1).mean()
     df['std'] = df['close_price'].rolling(WINDOW, min_periods=1).std()
 
     # Create subplots with 2 rows; top for candlestick price, and bottom for bar volume
     fig = make_subplots(rows = 2, cols = 1, 
-                        shared_xaxes = True,
-                        subplot_titles = (pair, 'Volume'))
+                        vertical_spacing=0.1)
 
     # ----------------
     # Candlestick Plot
-    fig.add_trace(go.Candlestick(x = df['datetime'],
+    fig.add_trace(go.Candlestick(x = df.index,
                                 open = df['open_price'],
                                 high = df['high_price'],
                                 low = df['low_price'],
@@ -171,23 +187,40 @@ def display_candlestick(pair):
     df.dropna(inplace=True)
 
     # Plot the three lines of the Bollinger Bands indicator -> With short amount of time, this can look ugly
-    # for parameter in ['moving_average', 'bol_lower', 'bol_upper']:
-    #     fig.add_trace(go.Scatter(
-    #         x = df['datetime'],
-    #         y = df[parameter],
-    #         showlegend = False,
-    #         line_color = 'gray',
-    #         mode='lines',
-    #         line={'dash': 'dash'},
-    #         marker_line_width=2, 
-    #         marker_size=10,
-    #         opacity = 0.8))
+    # Moving Average
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = df['sma'],
+                            line_color = 'black',
+                            name = 'sma'),
+                row = 1, col = 1)
+
+    # Upper Bound
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = df['sma'] + (df['std'] * 2),
+                            line_color = 'gray',
+                            line = {'dash': 'dash'},
+                            name = 'upper band',
+                            opacity = 0.5),
+                row = 1, col = 1)
+
+    # Lower Bound fill in between with parameter 'fill': 'tonexty'
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = df['sma'] - (df['std'] * 2),
+                            line_color = 'gray',
+                            line = {'dash': 'dash'},
+                            fill = 'tonexty',
+                            name = 'lower band',
+                            opacity = 0.5),
+                row = 1, col = 1)
 
     # Volume Plot
-    fig.add_trace(go.Bar(x = df['datetime'], y = df['volume'], showlegend=False), 
+    fig.add_trace(go.Bar(x = df.index, y = df['volume'], showlegend=False), 
                 row = 2, col = 1)
 
+    fig.update_layout(title=pair + " : " + interval + " OHLCV",
+                    yaxis_title="Price (USDT)")
     # Remove range slider; (short time frame)
+    fig.update_xaxes(showticklabels=False, row=1, col=1)
     fig.update(layout_xaxis_rangeslider_visible=False)
     return fig
 

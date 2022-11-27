@@ -4,6 +4,8 @@ The resources in this GitHub can be used to deploy an end-to-end data pipeline o
 
 This bases on the repo https://github.com/salcaino/sfucmpt733/tree/main/foobar-kafka Substantial changes and bug fixes have been made.
 
+For demo video, please access the [Youtube Link](https://youtu.be/pO5KWI55B0Q)
+
 ## ⚙️ Installation and Launch Script
 
 ### 🔸 Pre-requisite
@@ -108,4 +110,8 @@ or `clean` everything
 
 To get the best visualization result, the pipeline must collect enough data for at least two hours. For `Jupyter Notebook`, basic EDA on each dataset is performed (line chart, boxplot, and histogram). For cryptocurrency price, I tried to fit into [Prophet](https://facebook.github.io/prophet/) to predict the future price based on time-series model. However, the collected data is not enough to get an accurate and meaningful result.
 
-`Dash app` is also developed with `Candlestick and Volume` chart for cryptocurrency price. I tried to apply Bollinger Bands as a technical indicator for the chart but it didn't look good with the collected data. Line chart for comparison among cities was also displayed with filter variables on temperature and wind speed.
+`Dash app` is also developed for OLHCV cryptocurrency chart. I tried to apply Bollinger Bands as a technical indicator for the chart but it didn't look good with data collected less than 1 hours. Below is an example of 5-minute interval chart (need resampling from time-series data) and having the indicator after more than 2 hours
+
+<div align="center">
+  <img src="https://i.imgur.com/Yvrq6Na.png" alt="docker-container">
+</div>

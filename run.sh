@@ -140,39 +140,39 @@ build() {
   fi
 
   # kafka_connect
-  echo -n "Do you want to build the image for kafka_connect? (y/N) > "
+  echo -n "Do you want to build the image for kafka-connect? (y/N) > "
   read -r KAFKA_OPTION
 
   if [ "$KAFKA_OPTION" == "y" ]
   then
-    docker build -f kafka/connect.Dockerfile -t kafka_connect:latest ./kafka
+    docker build -f kafka/connect.Dockerfile -t kafka-connect:latest ./kafka
   fi
 
   # owm-producer_openweathermap
-  echo -n "Do you want to build the image for owm-producer_openweathermap? (y/N) > "
+  echo -n "Do you want to build the image for owm-producer-openweathermap? (y/N) > "
   read -r OWM_OPTION
 
   if [ "$OWM_OPTION" == "y" ]
   then
-    docker build -f owm-producer/Dockerfile -t owm-producer_openweathermap:latest ./owm-producer
+    docker build -f owm-producer/Dockerfile -t owm-producer-openweathermap:latest ./owm-producer
   fi
 
   # faker-producer_faker
-  echo -n "Do you want to build the image for faker-producer_faker? (y/N) > "
+  echo -n "Do you want to build the image for faker-producer-faker? (y/N) > "
   read -r FAKER_OPTION
 
   if [ "$FAKER_OPTION" == "y" ]
   then
-    docker build -f faker-producer/Dockerfile -t faker-producer_faker:latest ./faker-producer
+    docker build -f faker-producer/Dockerfile -t faker-producer-faker:latest ./faker-producer
   fi
 
   # binance-producer_binance
-  echo -n "Do you want to build the image for binance-producer_binance (y/N) > "
+  echo -n "Do you want to build the image for binance-producer-binance (y/N) > "
   read -r BINANCE_OPTION
 
   if [ "$BINANCE_OPTION" == "y" ]
   then
-    docker build -f ./binance-producer/Dockerfile -t binance-producer_binance:latest ./binance-producer
+    docker build -f ./binance-producer/Dockerfile -t binance-producer-binance:latest ./binance-producer
   fi  
 
   # consumer
@@ -190,7 +190,7 @@ build() {
 
   if [ "$DATA_VIS" == "y" ]
   then
-    docker build -f data-vis/Dockerfile -t data-vis_datavis:latest ./data-vis
+    docker build -f data-vis/Dockerfile -t data-vis-datavis:latest ./data-vis
   fi
   
   # dashboard
@@ -199,7 +199,7 @@ build() {
 
   if [ "$DASH_OPTION" == "y" ]
   then
-    docker build -f dashboard/Dockerfile -t dashboard_dashboard:latest ./dashboard
+    docker build -f dashboard/Dockerfile -t dashboard:latest ./dashboard
   fi
 
   # Cleaning up dangling images after build
